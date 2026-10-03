@@ -1,7 +1,74 @@
-import React from "react";
+import axios from "axios";
+import { useEffect } from "react";
 import { Link } from "react-router-dom";
 
 const Discover = () => {
+  type MedicalType = "clinic" | "hospital" | "medicalshop";
+
+  interface MedDetails {
+    id: number;
+    name: string;
+    type: MedicalType;
+    rating?: number;
+    phone?: string;
+    address: string;
+    isOpen?: boolean;
+    distance: number;
+  }
+
+  useEffect(() => {
+    const getClinics = async () => {
+      try {
+        const fetch_detials = await axios.get(
+          `https://api.geoapify.com/v2/places?categories=healthcare.hospital&filter=circle:82.970712,25.275204,5000&bias=proximity:82.970712,25.275204&limit=20&apiKey=91608788542a4517848a4857ea64779c`,
+        );
+
+        let response = fetch_detials.data.features;
+        console.log(response);
+      } catch (err) {
+        console.log(err);
+      }
+    };
+
+    // getClinics();
+  }, []);
+
+  const getMyLocation = () => {
+    navigator.geolocation.getCurrentPosition((position) => {
+      let lat = position.coords.latitude;
+      let long = position.coords.longitude;
+      console.log(lat, long);
+    });
+  };
+
+  const obj: MedDetails = {
+    id: 101,
+    name: "City Care Hospital",
+    type: "hospital",
+    address: "varanasi",
+    distance: 4,
+    phone: "8753432532",
+  };
+
+  const obj_1: MedDetails = {
+    id: 102,
+    name: "CarePoint Clinic",
+    type: "clinic",
+    address: "mumbai",
+    distance: 3,
+    phone: "8755732532",
+  };
+
+  const obj_2: MedDetails = {
+    id: 103,
+    name: "HealthPlus Pharmacy",
+    type: "medicalshop",
+    address: "delhi",
+    distance: 3.2,
+    phone: "8745632532",
+  };
+  const arr = [obj, obj_1, obj_2];
+
   return (
     <div className="min-h-screen bg-slate-50 text-slate-800">
       {/* Navbar */}
@@ -43,7 +110,12 @@ const Discover = () => {
                 placeholder="Enter your city or area"
                 className="flex-1 rounded-lg border border-slate-300 px-4 py-3 outline-none focus:border-blue-500"
               />
-              <button className="rounded-lg bg-blue-600 px-6 py-3 font-semibold text-white hover:bg-blue-700">
+              <button
+                className="rounded-lg bg-blue-600 px-6 py-3 font-semibold text-white hover:bg-blue-700"
+                onClick={()=>{
+                  getMyLocation()
+                }}
+              >
                 Use My Location
               </button>
             </div>
@@ -109,7 +181,7 @@ const Discover = () => {
         {/* Results */}
         <div className="mt-6 grid gap-6 lg:grid-cols-2">
           {/* Place Card */}
-          <div className="rounded-2xl bg-white p-5 shadow-sm transition hover:shadow-md">
+          {/* <div className="rounded-2xl bg-white p-5 shadow-sm transition hover:shadow-md">
             <div className="flex gap-4">
               <div className="flex h-20 w-20 shrink-0 items-center justify-center rounded-xl bg-blue-100 text-3xl">
                 🩺
@@ -147,9 +219,9 @@ const Discover = () => {
                 Directions
               </button>
             </div>
-          </div>
+          </div> */}
           {/* Place Card */}
-          <div className="rounded-2xl bg-white p-5 shadow-sm transition hover:shadow-md">
+          {/* <div className="rounded-2xl bg-white p-5 shadow-sm transition hover:shadow-md">
             <div className="flex gap-4">
               <div className="flex h-20 w-20 shrink-0 items-center justify-center rounded-xl bg-red-100 text-3xl">
                 🏥
@@ -187,9 +259,9 @@ const Discover = () => {
                 Directions
               </button>
             </div>
-          </div>
+          </div> */}
           {/* Place Card */}
-          <div className="rounded-2xl bg-white p-5 shadow-sm transition hover:shadow-md">
+          {/* <div className="rounded-2xl bg-white p-5 shadow-sm transition hover:shadow-md">
             <div className="flex gap-4">
               <div className="flex h-20 w-20 shrink-0 items-center justify-center rounded-xl bg-purple-100 text-3xl">
                 💊
@@ -227,47 +299,61 @@ const Discover = () => {
                 Directions
               </button>
             </div>
-          </div>
+          </div> */}
           {/* Place Card */}
-          <div className="rounded-2xl bg-white p-5 shadow-sm transition hover:shadow-md">
-            <div className="flex gap-4">
-              <div className="flex h-20 w-20 shrink-0 items-center justify-center rounded-xl bg-green-100 text-3xl">
-                🏨
-              </div>
-              <div className="flex-1">
-                <div className="flex items-start justify-between gap-3">
-                  <div>
-                    <h3 className="text-lg font-bold text-slate-900">
-                      CarePoint Clinic
-                    </h3>
-                    <p className="mt-1 text-sm text-blue-600"> Clinic </p>
-                  </div>
-                  <span className="rounded-full bg-green-100 px-3 py-1 text-xs font-semibold text-green-700">
-                    Open
-                  </span>
-                </div>
-                <div className="mt-3 flex items-center gap-2 text-sm">
-                  <span className="font-semibold text-yellow-500">★ 4.3</span>
-                  <span className="text-slate-400"> • </span>
-                  <span className="text-slate-500"> 4.2 km away </span>
-                </div>
-                <p className="mt-2 text-sm text-slate-500">
-                  Green Park, Near City Center
-                </p>
-              </div>
-            </div>
-            <div className="mt-5 flex gap-3 border-t border-slate-100 pt-4">
-              <Link
-                to="/place/4"
-                className="flex-1 rounded-lg bg-blue-600 py-2.5 text-center text-sm font-semibold text-white hover:bg-blue-700"
+          {arr.map((e) => {
+            return (
+              <div
+                className="rounded-2xl bg-white p-5 shadow-sm transition hover:shadow-md"
+                key={e.id}
               >
-                View Details
-              </Link>
-              <button className="rounded-lg border border-slate-300 px-5 py-2.5 text-sm font-semibold text-slate-700 hover:bg-slate-50">
-                Directions
-              </button>
-            </div>
-          </div>
+                <div className="flex gap-4">
+                  <div className="flex h-20 w-20 shrink-0 items-center justify-center rounded-xl bg-green-100 text-3xl">
+                    🏨
+                  </div>
+                  <div className="flex-1">
+                    <div className="flex items-start justify-between gap-3">
+                      <div>
+                        <h3 className="text-lg font-bold text-slate-900">
+                          {e.name}
+                        </h3>
+                        <p className="mt-1 text-sm text-blue-600"> {e.type} </p>
+                      </div>
+                      <span className="rounded-full bg-green-100 px-3 py-1 text-xs font-semibold text-green-700">
+                        {e.isOpen === undefined
+                          ? "N/A"
+                          : e.isOpen === true
+                            ? "Open"
+                            : "Close"}
+                      </span>
+                    </div>
+                    <div className="mt-3 flex items-center gap-2 text-sm">
+                      <span className="font-semibold text-yellow-500">
+                        ★ {e.rating}
+                      </span>
+                      <span className="text-slate-400"> • </span>
+                      <span className="text-slate-500">
+                        {" "}
+                        {e.distance} km away{" "}
+                      </span>
+                    </div>
+                    <p className="mt-2 text-sm text-slate-500">{e.address}</p>
+                  </div>
+                </div>
+                <div className="mt-5 flex gap-3 border-t border-slate-100 pt-4">
+                  <Link
+                    to="/place/4"
+                    className="flex-1 rounded-lg bg-blue-600 py-2.5 text-center text-sm font-semibold text-white hover:bg-blue-700"
+                  >
+                    View Details
+                  </Link>
+                  <button className="rounded-lg border border-slate-300 px-5 py-2.5 text-sm font-semibold text-slate-700 hover:bg-slate-50">
+                    Directions
+                  </button>
+                </div>
+              </div>
+            );
+          })}
         </div>
       </main>
       {/* Footer */}
