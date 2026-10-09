@@ -1,10 +1,14 @@
 import axios from "axios";
+
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 
 const Discover = () => {
   const [latitude, setLatitude] = useState();
   const [longitude, setLongitude] = useState();
+  const [category, setCategory] = useState("all");
+  const [kilometer, setKilometer] = useState("2000");
+
   const [data, setData] = useState<MedicalPlace[]>([]);
 
   interface MedicalPlace {
@@ -38,7 +42,7 @@ const Discover = () => {
     //calling the api
     try {
       const fetch_detials = await axios.get(
-        `https://api.geoapify.com/v2/places?categories=healthcare.hospital&filter=circle:${longitude},${latitude},5000&bias=proximity:${longitude},${latitude}&limit=12&apiKey=91608788542a4517848a4857ea64779c`,
+        `https://api.geoapify.com/v2/places?categories=healthcare${category}&filter=circle:${longitude},${latitude},${kilometer}&bias=proximity:${longitude},${latitude}&limit=12&apiKey=91608788542a4517848a4857ea64779c`,
       );
 
       const response = fetch_detials.data.features.map((e) => {
@@ -48,19 +52,28 @@ const Discover = () => {
           type: e.properties.categories[0],
           address: e.properties.formatted,
           distance: e.properties.distance,
-          latitudes: e.properties.lat,
-          longitudes: e.properties.lon,
+          latitude: e.properties.lat,
+          longitude: e.properties.lon,
         };
       });
-
       const place: MedicalPlace[] = response;
-
-      console.log(place);
       setData(place);
+      console.log(category);
+      console.log(kilometer);
+      
     } catch (err) {
       console.log(err);
     }
   };
+
+  const filterName = (e) => {
+    setCategory(e.target.value)
+
+  }
+
+  const kiloRange = (e)=>{
+    setKilometer(e.target.value)
+  }
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-800">
@@ -100,12 +113,15 @@ const Discover = () => {
                 Category
               </label>
 
-              <select className="w-full rounded-lg border border-slate-300 bg-white px-4 py-3 text-slate-700 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100">
-                <option>All</option>
-                <option>Doctors</option>
-                <option>Hospitals</option>
-                <option>Clinics</option>
-                <option>Medical Stores</option>
+              <select value={category}
+                onChange={filterName}
+                className="w-full rounded-lg border border-slate-300 bg-white px-4 py-3 text-slate-700 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+              >
+                <option value={""}>All</option>
+                <option value={".dentist"}>Dentist</option>
+                <option value={".hospital"}>Hospitals</option>
+                <option value={".clinic_or_praxis.general"}>General</option>
+                <option value={".pharmacy"}>Pharmacy</option>
               </select>
             </div>
 
@@ -115,12 +131,12 @@ const Discover = () => {
                 Distance
               </label>
 
-              <select className="w-full rounded-lg border border-slate-300 bg-white px-4 py-3 text-slate-700 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100">
-                <option>2 km</option>
-                <option>3 km</option>
-                <option>4 km</option>
-                <option>5 km</option>
-                <option>10 km</option>
+              <select onChange={kiloRange} value={kilometer} className="w-full rounded-lg border border-slate-300 bg-white px-4 py-3 text-slate-700 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100">
+                <option value={"2000"}>2 km</option>
+                <option value={"3000"}>3 km</option>
+                <option value={"4000"}>4 km</option>
+                <option value={"5000"}>5 km</option>
+                <option value={"10000"}>10 km</option>
               </select>
             </div>
           </div>
