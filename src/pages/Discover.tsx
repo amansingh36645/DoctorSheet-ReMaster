@@ -5,25 +5,34 @@ import { Link } from "react-router-dom";
 const Discover = () => {
   const [latitude, setLatitude] = useState();
   const [longitude, setLongitude] = useState();
-  const [data, setData] = useState([]);
+  const [data, setData] = useState<MedicalPlace[]>([]);
+
+  interface MedicalPlace {
+    id: string;
+    name: string;
+    type: string;
+    address: string;
+    distance: number;
+    latitude: number;
+    longitude: number;
+  }
 
   useEffect(() => {
     // get user location
     navigator.geolocation.getCurrentPosition(
       (position) => {
-        let lat = position.coords.latitude;
-        let long = position.coords.longitude;
-        console.log(lat, long);
+        const lat = position.coords.latitude;
+        const long = position.coords.longitude;
         setLongitude(long);
         setLatitude(lat);
       },
       (error) => {
-        let err = error.PERMISSION_DENIED;
-        let msg = error.message;
+        const err = error.PERMISSION_DENIED;
+        const msg = error.message;
         console.log(err, msg);
       },
     );
-  }, [latitude]);
+  }, []);
 
   const getDeatils = async () => {
     //calling the api
@@ -32,9 +41,22 @@ const Discover = () => {
         `https://api.geoapify.com/v2/places?categories=healthcare.hospital&filter=circle:${longitude},${latitude},5000&bias=proximity:${longitude},${latitude}&limit=12&apiKey=91608788542a4517848a4857ea64779c`,
       );
 
-      const response = fetch_detials.data.features;
-      console.log(response);
-      setData(response);
+      const response = fetch_detials.data.features.map((e) => {
+        return {
+          id: e.properties.place_id,
+          name: e.properties.name,
+          type: e.properties.categories[0],
+          address: e.properties.formatted,
+          distance: e.properties.distance,
+          latitudes: e.properties.lat,
+          longitudes: e.properties.lon,
+        };
+      });
+
+      const place: MedicalPlace[] = response;
+
+      console.log(place);
+      setData(place);
     } catch (err) {
       console.log(err);
     }
@@ -137,9 +159,12 @@ const Discover = () => {
         ) : (
           <div className="mt-6 grid gap-6 lg:grid-cols-2">
             {/* Place Card */}
-            {data.map((e, idx) => {
+            {data.map((e) => {
               return (
-                <div className="rounded-2xl bg-white p-5 shadow-sm transition hover:-translate-y-1 hover:shadow-md" key={e.place_id}>
+                <div
+                  className="rounded-2xl bg-white p-5 shadow-sm transition hover:-translate-y-1 hover:shadow-md"
+                  key={e.id}
+                >
                   {/* Header */}
                   <div className="flex items-start justify-between gap-4">
                     <div className="flex items-start gap-3">
@@ -149,18 +174,18 @@ const Discover = () => {
 
                       <div>
                         <h3 className="text-lg font-bold text-slate-800">
-                          {e.properties.name}
+                          {e.name}
                         </h3>
 
                         <span className="mt-1 inline-block rounded-full bg-blue-50 px-3 py-1 text-xs font-semibold text-blue-600">
-                          {e.properties.categories[0]}
+                          {e.type}
                         </span>
                       </div>
                     </div>
 
                     {/* Distance */}
                     <span className="whitespace-nowrap rounded-full bg-slate-100 px-3 py-1 text-sm font-semibold text-slate-600">
-                      {e.properties.distance} m away
+                      {e.distance} m away
                     </span>
                   </div>
 
@@ -169,7 +194,7 @@ const Discover = () => {
                     <span className="text-lg">📍</span>
 
                     <p className="text-sm leading-6 text-slate-600">
-                      {e.properties.formatted}
+                      {e.address}
                     </p>
                   </div>
 
